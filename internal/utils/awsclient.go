@@ -7,7 +7,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 )
 
-// NewEC2Client creates a new EC2 client
 func NewEC2Client() (*ec2.Client, error) {
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	if err != nil {

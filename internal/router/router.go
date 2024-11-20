@@ -8,14 +8,18 @@ import (
 )
 
 // NewRouter initializes and returns a new router
-func NewRouter(ec2Handler *handlers.EC2Handler) http.Handler {
+func NewRouter(ec2Handler *handlers.EC2Handler, cloudWatchHandler *handlers.CloudWatchHandler) http.Handler {
 	r := chi.NewRouter()
 
 	r.Get("/regions", ec2Handler.ListRegionsHandler)
 
-	// instances
+	// EC2 instances
 	r.Post("/instances/launch", ec2Handler.LaunchInstanceHandler)
 	r.Post("/instances/stop", ec2Handler.StopInstanceByIdHandler)
+	r.Get("/instances/status", ec2Handler.ListRunningInstancesStatusHandler)
+
+	// Cloudwatch
+	r.Get("/cloudwatch/metrics", cloudWatchHandler.GetEC2MetricsHandler)
 
 	return r
 }

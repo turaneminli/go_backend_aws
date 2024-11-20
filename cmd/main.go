@@ -11,20 +11,24 @@ import (
 )
 
 func main() {
-	// Initialize AWS client
 	client, err := utils.NewEC2Client()
 	if err != nil {
 		log.Fatalf("failed to create EC2 client: %v", err)
 	}
 
-	// Initialize services and handlers
 	ec2Service := &services.EC2Service{Client: client}
 	ec2Handler := &handlers.EC2Handler{Service: ec2Service}
 
-	// Initialize the router
-	r := router.NewRouter(ec2Handler)
+	cloudWatchClient, err_c := utils.CreateCloudWatchClient()
+	if err_c != nil {
+		log.Fatalf("failed to create EC2 client: %v", err_c)
+	}
 
-	// Start the server
+	cloudWatchService := &services.CloudWatchService{Client: cloudWatchClient}
+	cloudWatchHandler := &handlers.CloudWatchHandler{Service: cloudWatchService}
+
+	r := router.NewRouter(ec2Handler, cloudWatchHandler)
+
 	log.Println("Server is running on port 8080...")
 	err = http.ListenAndServe(":8080", r)
 	if err != nil {

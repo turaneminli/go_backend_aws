@@ -11,6 +11,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.3.24 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.6.24 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/ini v1.8.1 // indirect
+	github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.43.1 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ec2 v1.191.0 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.12.1 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.12.5 // indirect
