@@ -5,6 +5,7 @@ import { ToastContainer } from 'react-toastify';  // Import ToastContainer
 import 'react-toastify/dist/ReactToastify.css';  // Import Toastify styles
 import InstanceList from './components/InstanceList';
 import Navbar from './components/Navbar';
+import Dashboard from './components/Dashboard';
 
 function App() {
   return (
@@ -14,11 +15,8 @@ function App() {
         <Routes>
           <Route path="/launch-instance" element={<LaunchInstance />} />
           <Route path="/" element={<InstanceList />} />
-
-          {/* You can add more routes for other pages */}
+          <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
-
-        {/* ToastContainer component to display the toasts */}
         <ToastContainer />
       </div>
     </Router>

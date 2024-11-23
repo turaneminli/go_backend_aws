@@ -17,6 +17,9 @@ function Navbar() {
         <li className={location.pathname === '/launch-instance' ? styles.active : ''}>
           <Link to="/launch-instance">Launch Instance</Link>
         </li>
+        <li className={location.pathname === '/dashboard' ? styles.active : ''}>
+          <Link to="/dashboard">Dashboard</Link>
+        </li>
       </ul>
     </nav>
   );
