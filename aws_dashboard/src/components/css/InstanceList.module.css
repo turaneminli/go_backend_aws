@@ -1,0 +1,52 @@
+/* InstanceList.module.css */
+
+.container {
+  padding: 20px;
+}
+
+.header {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.launchButton {
+  margin-bottom: 20px;
+  background-color: orange;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.instanceTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.instanceTable th, .instanceTable td {
+  padding: 10px;
+  border: 1px solid #ddd;
+}
+
+.stopButton, .startButton {
+  padding: 8px 16px;
+  border: none;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.stopButton {
+  background-color: red;
+  color: white;
+}
+
+.startButton {
+  background-color: green;
+  color: white;
+}
+
+button:disabled {
+  background-color: gray;
+  cursor: not-allowed;
+}

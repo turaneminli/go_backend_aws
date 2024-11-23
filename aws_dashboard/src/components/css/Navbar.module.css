@@ -1,0 +1,54 @@
+/* Navbar styles */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #ff7849; /* Bright orange matching your theme */
+  padding: 0.8rem 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.navbar .logo a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.navLinks {
+  list-style: none;
+  display: flex;
+  gap: 1.5rem;
+  margin: 0;
+  padding: 0;
+}
+
+.navLinks li {
+  display: inline;
+}
+
+.navLinks a {
+  text-decoration: none;
+  color: #fff;
+  font-size: 1rem;
+  transition: color 0.3s;
+}
+
+.navLinks a:hover {
+  color: #ffe4d1; /* Lighter orange shade for hover effect */
+}
+
+.active a {
+  font-weight: bold;
+  border-bottom: 2px solid #ffe4d1; /* Active underline effect */
+}
+
+@media (max-width: 768px) {
+  .navLinks {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+}

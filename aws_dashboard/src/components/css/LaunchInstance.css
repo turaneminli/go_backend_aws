@@ -1,0 +1,147 @@
+/* General styles */
+.launch-instance-container {
+  font-family: "Arial", sans-serif;
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 800px;
+  margin: 20px auto;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+}
+
+h2 {
+  text-align: center;
+  color: #333;
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+/* Back Button styles */
+.back-button {
+  background-color: #ff7f00; /* Orange color */
+  color: white;
+  font-size: 16px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  display: block;
+  margin: 0 auto 20px auto;
+  transition: background-color 0.3s ease;
+}
+
+.back-button:hover {
+  background-color: #e66b00;
+}
+
+.back-button:focus {
+  outline: none;
+}
+
+/* Form styles */
+.launch-form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 15px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+label {
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 8px;
+}
+
+input,
+select {
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 100%;
+  transition: border-color 0.3s ease;
+}
+
+input:focus,
+select:focus {
+  border-color: #ff7f00;
+  outline: none;
+}
+
+select {
+  height: 40px;
+}
+
+option {
+  font-size: 16px;
+}
+
+/* Submit button styles */
+.launch-button {
+  background-color: #ff7f00; /* Orange color */
+  color: white;
+  font-size: 18px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 20px;
+  transition: background-color 0.3s ease;
+}
+
+.launch-button:hover {
+  background-color: #e66b00;
+}
+
+.launch-button:focus {
+  outline: none;
+}
+
+p {
+  color: #ff7f00;
+  text-align: center;
+  font-size: 16px;
+  margin: 0;
+}
+
+/* Loading styles */
+.loading-text {
+  text-align: center;
+  font-size: 16px;
+  color: #666;
+}
+
+/* Add some spacing for inputs */
+input,
+select {
+  margin-bottom: 15px;
+}
+
+/* Mobile responsive */
+@media (max-width: 600px) {
+  .launch-instance-container {
+    padding: 15px;
+  }
+
+  .launch-form {
+    padding: 10px;
+  }
+
+  .form-group label {
+    font-size: 14px;
+  }
+
+  .back-button,
+  .launch-button {
+    width: 100%;
+  }
+}
