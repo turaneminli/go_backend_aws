@@ -36,17 +36,35 @@ func (s *CloudWatchService) GetEC2Metrics(instanceID string) ([]EC2Metrics, erro
 						},
 					},
 				},
-				Period: aws.Int32(60), // Period in seconds
+				Period: aws.Int32(60), 
 				Stat:   aws.String("Average"),
 			},
 			ReturnData: aws.Bool(true),
 		},
 		{
-			Id: aws.String("disk_read_bytes"),
+			Id: aws.String("network_in"),
 			MetricStat: &types.MetricStat{
 				Metric: &types.Metric{
 					Namespace:  aws.String("AWS/EC2"),
-					MetricName: aws.String("DiskReadBytes"),
+					MetricName: aws.String("NetworkIn"),
+					Dimensions: []types.Dimension{
+						{
+							Name:  aws.String("InstanceId"),
+							Value: aws.String(instanceID),
+						},
+					},
+				},
+				Period: aws.Int32(60),
+				Stat:   aws.String("Sum"),
+			},
+			ReturnData: aws.Bool(true),
+		},
+		{
+			Id: aws.String("network_out"),
+			MetricStat: &types.MetricStat{
+				Metric: &types.Metric{
+					Namespace:  aws.String("AWS/EC2"),
+					MetricName: aws.String("NetworkOut"),
 					Dimensions: []types.Dimension{
 						{
 							Name:  aws.String("InstanceId"),
@@ -63,7 +81,7 @@ func (s *CloudWatchService) GetEC2Metrics(instanceID string) ([]EC2Metrics, erro
 
 	input := &cloudwatch.GetMetricDataInput{
 		MetricDataQueries: metrics,
-		StartTime:         aws.Time(time.Now().Add(-1 * time.Hour)),
+		StartTime:         aws.Time(time.Now().Add(-1 * time.Hour)), // Adjust time range as needed
 		EndTime:           aws.Time(time.Now()),
 	}
 
