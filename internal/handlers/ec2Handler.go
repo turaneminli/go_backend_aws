@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/turaneminli/go_backend_aws/internal/services"
@@ -88,6 +89,8 @@ func (h *EC2Handler) ListRunningInstancesStatusHandler(w http.ResponseWriter, r 
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+
+	fmt.Println(instances)
 
 	if err := json.NewEncoder(w).Encode(instances); err != nil {
 		http.Error(w, "Failed to encode instances to JSON", http.StatusInternalServerError)

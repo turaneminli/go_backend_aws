@@ -1,0 +1,11 @@
+.navbar {
+  background-color: #fb8c00; /* Orange */
+  padding: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.title {
+  color: white;
+  font-size: 1.5rem;
+  font-weight: bold;
+}

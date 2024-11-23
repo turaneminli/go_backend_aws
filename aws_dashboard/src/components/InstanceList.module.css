@@ -1,0 +1,55 @@
+.container {
+  margin: 20px;
+}
+
+.header {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.launchButton {
+  padding: 10px 20px;
+  background-color: #ff6600; /* Orange background */
+  color: white;
+  border: none;
+  cursor: pointer;
+  margin-bottom: 20px;
+  font-size: 16px;
+}
+
+.launchButton:hover {
+  background-color: #e65c00;
+}
+
+.instanceTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.instanceTable th,
+.instanceTable td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+.instanceTable th {
+  background-color: #f4f4f4;
+}
+
+.stopButton {
+  padding: 5px 10px;
+  background-color: #ff4d4d; /* Red background */
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.stopButton:hover {
+  background-color: #e60000;
+}
+
+.stopButton:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
