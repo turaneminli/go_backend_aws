@@ -24,8 +24,9 @@ type CreateBucketInput struct {
 	Region     string `json:"region"`
 }
 
-// ListBuckets retrieves a list of all buckets
+// ListBuckets retrieves a list of all buckets along with their regions
 func (s *S3Service) ListBuckets() ([]BucketInfo, error) {
+	// List all buckets
 	output, err := s.Client.ListBuckets(context.TODO(), &s3.ListBucketsInput{})
 	if err != nil {
 		return nil, fmt.Errorf("failed to list buckets: %w", err)
@@ -33,13 +34,40 @@ func (s *S3Service) ListBuckets() ([]BucketInfo, error) {
 
 	var buckets []BucketInfo
 	for _, bucket := range output.Buckets {
+		// Get the region for each bucket using GetBucketLocation
+		region, err := s.GetBucketLocation(aws.ToString(bucket.Name))
+		if err != nil {
+			// If we fail to fetch the region, set a default or handle the error
+			region = "Unknown" // Default region if we fail to get the region
+		}
+
+		// Append bucket information along with its region
 		buckets = append(buckets, BucketInfo{
 			Name:         aws.ToString(bucket.Name),
 			CreationDate: bucket.CreationDate.String(),
+			Region:       region,
 		})
 	}
 
 	return buckets, nil
+}
+
+func (s *S3Service) GetBucketLocation(bucketName string) (string, error) {
+	// Retrieve the bucket location
+	output, err := s.Client.GetBucketLocation(context.TODO(), &s3.GetBucketLocationInput{
+		Bucket: aws.String(bucketName),
+	})
+	if err != nil {
+		return "", fmt.Errorf("failed to get bucket location for %s: %w", bucketName, err)
+	}
+
+	// The LocationConstraint field in the response is the region
+	region := string(output.LocationConstraint)
+	if region == "" {
+		region = "us-east-1" // Default region if no location constraint is set
+	}
+
+	return region, nil
 }
 
 // CreateBucket creates a new S3 bucket in the specified region

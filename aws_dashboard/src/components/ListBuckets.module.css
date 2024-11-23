@@ -1,0 +1,80 @@
+/* Container for the entire page */
+.container {
+    margin: 20px;
+    font-family: Arial, sans-serif;
+  }
+  
+  /* Header styling */
+  .header {
+    font-size: 28px;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  /* Button for creating a bucket */
+  .createBucketButton {
+    padding: 12px 25px;
+    background-color: #28a745; /* Green background */
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    margin-bottom: 20px;
+  }
+  
+  .createBucketButton:hover {
+    background-color: #218838; /* Darker green */
+  }
+  
+  /* Table displaying the list of S3 buckets */
+  .instanceTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  
+  /* Table header styling */
+  .instanceTable th,
+  .instanceTable td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: left;
+    font-size: 14px;
+  }
+  
+  /* Table header background color */
+  .instanceTable th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+  }
+  
+  /* Row hover effect */
+  .instanceTable tr:hover {
+    background-color: #f1f1f1;
+  }
+  
+  /* Stop button (for deleting bucket or stopping actions) */
+  .stopButton {
+    padding: 8px 16px;
+    background-color: #dc3545; /* Red background */
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .stopButton:hover {
+    background-color: #c82333; /* Darker red */
+  }
+  
+  .stopButton:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+  
+  /* Error or no buckets message styling */
+  .errorMessage {
+    color: #dc3545;
+    font-size: 16px;
+    font-weight: bold;
+  }
+  
