@@ -8,18 +8,23 @@ import (
 )
 
 // NewRouter initializes and returns a new router
-func NewRouter(ec2Handler *handlers.EC2Handler, cloudWatchHandler *handlers.CloudWatchHandler) http.Handler {
+func NewRouter(ec2Handler *handlers.EC2Handler, cloudWatchHandler *handlers.CloudWatchHandler, s3Handler *handlers.S3Handler) http.Handler {
 	r := chi.NewRouter()
 
+	// EC2 Routes
 	r.Get("/regions", ec2Handler.ListRegionsHandler)
-
-	// EC2 instances
 	r.Post("/instances/launch", ec2Handler.LaunchInstanceHandler)
 	r.Post("/instances/stop", ec2Handler.StopInstanceByIdHandler)
 	r.Get("/instances/status", ec2Handler.ListRunningInstancesStatusHandler)
 
-	// Cloudwatch
+	// CloudWatch Routes
 	r.Get("/cloudwatch/metrics", cloudWatchHandler.GetEC2MetricsHandler)
+
+	// S3 Routes
+	r.Get("/s3/buckets", s3Handler.ListBucketsHandler)
+	r.Post("/s3/buckets/create", s3Handler.CreateBucketHandler)
+	r.Delete("/s3/buckets/delete", s3Handler.DeleteBucketHandler)
+	r.Get("/s3/buckets/objects", s3Handler.ListBucketObjectsHandler)
 
 	return r
 }
