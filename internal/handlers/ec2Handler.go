@@ -81,6 +81,31 @@ func (h *EC2Handler) StopInstanceByIdHandler(w http.ResponseWriter, r *http.Requ
 	json.NewEncoder(w).Encode(response)
 }
 
+func (h *EC2Handler) StartInstanceByIdHandler(w http.ResponseWriter, r *http.Request) {
+	instanceID := r.URL.Query().Get("instanceId")
+
+	if instanceID == "" {
+		http.Error(w, "Missing instance ID", http.StatusBadRequest)
+		return
+	}
+
+	instanceID, err := h.Service.StartInstanceById(instanceID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	response := Response{
+		Message:    "Instance started successfully",
+		InstanceID: instanceID,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(response)
+}
+
 func (h *EC2Handler) ListRunningInstancesStatusHandler(w http.ResponseWriter, r *http.Request) {
 	instances, err := h.Service.GetAllRunningInstancesStatus()
 	if err != nil {
@@ -90,9 +115,22 @@ func (h *EC2Handler) ListRunningInstancesStatusHandler(w http.ResponseWriter, r 
 
 	w.Header().Set("Content-Type", "application/json")
 
-	fmt.Println(instances)
-
 	if err := json.NewEncoder(w).Encode(instances); err != nil {
 		http.Error(w, "Failed to encode instances to JSON", http.StatusInternalServerError)
+	}
+}
+
+func (h *EC2Handler) ListSecurityGroupsHandler(w http.ResponseWriter, r *http.Request) {
+	securityGroups, err := h.Service.ListSecurityGroups()
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to retrieve security groups: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	// Return the list of security groups as JSON
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(securityGroups); err != nil {
+		http.Error(w, fmt.Sprintf("Failed to encode response: %v", err), http.StatusInternalServerError)
 	}
 }

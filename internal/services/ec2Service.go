@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 	"github.com/aws/aws-sdk-go-v2/service/ec2/types"
 )
@@ -16,12 +17,13 @@ type EC2Service struct {
 
 type LaunchInstanceInput struct {
 	AMI            string   `json:"ami"`
-	InstanceType   string   `json:"instance_type"`
-	KeyPair        string   `json:"key_pair"`
-	SecurityGroups []string `json:"security_groups"`
-	InstanceName   string   `json:"instance_name"`
-	MinCount       int32    `json:"min_count"`
-	MaxCount       int32    `json:"max_count"`
+	InstanceType   string   `json:"instanceType"`
+	KeyPair        string   `json:"keyPair"`
+	SecurityGroups []string `json:"securityGroups"`
+	InstanceName   string   `json:"instanceName"`
+	MinCount       int32    `json:"minCount"`
+	MaxCount       int32    `json:"maxCount"`
+	Region         string   `json:"region"`
 }
 
 type InstanceStatus struct {
@@ -40,7 +42,34 @@ func (s *EC2Service) ListRegions() ([]types.Region, error) {
 	return output.Regions, nil
 }
 
+func (s *EC2Service) ListSecurityGroups() ([]map[string]string, error) {
+	req := &ec2.DescribeSecurityGroupsInput{}
+	resp, err := s.Client.DescribeSecurityGroups(context.TODO(), req)
+	if err != nil {
+		return nil, fmt.Errorf("unable to describe security groups: %v", err)
+	}
+
+	var result []map[string]string
+	for _, sg := range resp.SecurityGroups {
+		result = append(result, map[string]string{
+			"GroupId":   *sg.GroupId,
+			"GroupName": *sg.GroupName,
+		})
+	}
+
+	return result, nil
+}
+
 func (s *EC2Service) LaunchInstance(input LaunchInstanceInput) (string, error) {
+	region := input.Region
+
+	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion(region))
+	if err != nil {
+		return "", fmt.Errorf("unable to load SDK config, %v", err)
+	}
+	s.Client = ec2.NewFromConfig(cfg)
+
+	// Prepare the EC2 run instance input
 	runInput := &ec2.RunInstancesInput{
 		ImageId:          aws.String(input.AMI),
 		InstanceType:     types.InstanceType(input.InstanceType),
@@ -61,17 +90,18 @@ func (s *EC2Service) LaunchInstance(input LaunchInstanceInput) (string, error) {
 		},
 	}
 
+	// Run the instance
 	output, err := s.Client.RunInstances(context.TODO(), runInput)
 	if err != nil {
 		return "", fmt.Errorf("failed to launch instance: %w", err)
 	}
 
+	// Return the instance ID if successful
 	if len(output.Instances) > 0 {
 		return aws.ToString(output.Instances[0].InstanceId), nil
 	}
 
 	return "", fmt.Errorf("no instances were launched")
-
 }
 
 func (s *EC2Service) StopInstanceById(instanceID string) (string, error) {
@@ -92,6 +122,23 @@ func (s *EC2Service) StopInstanceById(instanceID string) (string, error) {
 	return "", fmt.Errorf("instance not found or failed to stop")
 }
 
+func (s *EC2Service) StartInstanceById(instanceID string) (string, error) {
+	input := &ec2.StartInstancesInput{
+		InstanceIds: []string{instanceID},
+	}
+
+	output, err := s.Client.StartInstances(context.TODO(), input)
+	if err != nil {
+		return "", fmt.Errorf("unable to start instance: %w", err)
+	}
+
+	if len(output.StartingInstances) > 0 {
+		return aws.ToString(output.StartingInstances[0].InstanceId), nil
+	}
+
+	return "", fmt.Errorf("instance not found or failed to start")
+}
+
 func (s *EC2Service) GetAllRunningInstancesStatus() ([]InstanceStatus, error) {
 	input := &ec2.DescribeInstancesInput{}
 
@@ -104,7 +151,7 @@ func (s *EC2Service) GetAllRunningInstancesStatus() ([]InstanceStatus, error) {
 
 	for _, reservation := range output.Reservations {
 		for _, instance := range reservation.Instances {
-			if instance.State != nil && instance.State.Name == types.InstanceStateNameRunning {
+			if instance.State != nil && (instance.State.Name == types.InstanceStateNameRunning || instance.State.Name == types.InstanceStateNameStopped) {
 				instanceName := "N/A"
 				for _, tag := range instance.Tags {
 					if *tag.Key == "Name" {
