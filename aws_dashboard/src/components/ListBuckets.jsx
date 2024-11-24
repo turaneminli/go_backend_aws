@@ -22,6 +22,7 @@ const ListBuckets = () => {
       })
       .catch(err => {
         setError('Error fetching buckets');
+        console.error(err);
         setMessage('');
         toast.error('Failed to fetch buckets!'); // Show error toast
       })
@@ -74,10 +75,8 @@ const ListBuckets = () => {
       {error && <p className={styles.errorMessage}>{error}</p>}
       {message && <p className={styles.successMessage}>{message}</p>}
 
-      {/* Loading Indicator */}
       {loading && <div className={styles.loading}>Loading...</div>}
 
-      {/* Table to list the buckets */}
       {buckets.length > 0 ? (
         <table className={styles.instanceTable}>
           <thead>
@@ -115,7 +114,7 @@ const ListBuckets = () => {
             {buckets.map((bucket, index) => (
               <tr key={index}>
                 <td>{bucket.name}</td>
-                <td>{bucket.region ? bucket.region : 'N/A'}</td> {/* Display the region or 'N/A' */}
+                <td>{bucket.region ? bucket.region : 'N/A'}</td> 
                 <td>{cleanDate(bucket.creation_date)}</td>
               </tr>
             ))}
