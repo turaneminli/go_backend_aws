@@ -7,6 +7,7 @@ import InstanceList from './components/InstanceList';
 import Navbar from './components/Navbar';
 import Dashboard from './components/Dashboard';
 import ListBuckets from './components/ListBuckets';
+import InstanceDetails from './components/InstanceDetails';
 
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
           <Route path="/launch-instance" element={<LaunchInstance />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/s3/buckets" element={<ListBuckets />} />
+          <Route path="/instance-details/:instanceId" element={<InstanceDetails />} />
         </Routes>
         <ToastContainer />
       </div>

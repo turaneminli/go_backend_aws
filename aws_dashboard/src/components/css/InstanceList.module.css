@@ -1,3 +1,5 @@
+/* InstanceList.module.css */
+
 .container {
   padding: 20px;
 }
@@ -22,12 +24,14 @@
   border-collapse: collapse;
 }
 
-.instanceTable th, .instanceTable td {
+.instanceTable th,
+.instanceTable td {
   padding: 10px;
   border: 1px solid #ddd;
 }
 
-.stopButton, .startButton {
+.stopButton,
+.startButton {
   padding: 8px 16px;
   border: none;
   cursor: pointer;
@@ -78,8 +82,12 @@ button:disabled {
 }
 
 @keyframes spinner {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .loading::before {
@@ -96,4 +104,17 @@ button:disabled {
   border: 3px solid #ccc;
   border-top-color: #007bff;
   animation: spinner 0.6s linear infinite;
+}
+
+/* New styling for hyperlinks (instance links) */
+.instanceLink {
+  color: #007bff;
+  cursor: pointer;
+  font-weight: 600;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.instanceLink:hover {
+  color: #0056b3;
+  transform: scale(1.05);
 }

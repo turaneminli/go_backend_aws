@@ -61,12 +61,15 @@ function InstanceList() {
   };
 
   const openModal = (action, id) => {
-    console.log("Opening modal")
     setModal({ isOpen: true, action, instanceId: id });
   };
 
   const closeModal = () => {
     setModal({ isOpen: false, action: null, instanceId: null });
+  };
+
+  const handleInstanceClick = (instanceId) => {
+    navigate(`/instance-details/${instanceId}`);
   };
 
   if (loading) return <p>Loading instances...</p>;
@@ -88,7 +91,12 @@ function InstanceList() {
         <tbody>
           {instances.map((instance) => (
             <tr key={instance.id}>
-              <td>{instance.name}</td>
+              <td
+                onClick={() => handleInstanceClick(instance.id)}
+                className={styles.instanceLink}
+              >
+                {instance.name}
+              </td>
               <td>{instance.id}</td>
               <td>{instance.state}</td>
               <td>{instance.public_ip}</td>
@@ -108,7 +116,6 @@ function InstanceList() {
                 >
                   Start Instance
                 </button>
-
               </td>
             </tr>
           ))}
