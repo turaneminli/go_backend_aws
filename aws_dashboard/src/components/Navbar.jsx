@@ -8,7 +8,7 @@ function Navbar() {
   return (
     <nav className={styles.navbar}>
       <div className={styles.logo}>
-        <Link to="/">Turandrei AWS Management</Link> {/* Replace with your app name */}
+        <Link to="/">AWS Management</Link> {/* Replace with your app name */}
       </div>
       <ul className={styles.navLinks}>
         <li className={location.pathname === '/' ? styles.active : ''}>

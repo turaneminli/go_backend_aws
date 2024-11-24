@@ -1,70 +1,79 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';  // Import toast from react-toastify
-import 'react-toastify/dist/ReactToastify.css';  // Import Toastify styles
+import { toast } from 'react-toastify';
+import ConfirmationModal from './ConfirmationModal';
+import 'react-toastify/dist/ReactToastify.css';
 import styles from './css/InstanceList.module.css';
 
 function InstanceList() {
   const [instances, setInstances] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [modal, setModal] = useState({ isOpen: false, action: null, instanceId: null });
   const navigate = useNavigate();
 
-  // Fetch EC2 instance statuses
   useEffect(() => {
     axios
-      .get('http://localhost:8080/instances/status') // Replace with your API base URL
+      .get('http://localhost:8080/instances/status')
       .then((response) => {
-        setInstances(response.data); // Assuming the response is an array of instance objects
+        setInstances(response.data);
         setLoading(false);
       })
       .catch((error) => {
         console.error('Error fetching instance statuses:', error);
         setLoading(false);
-        toast.error('Failed to load instances');  // Show error toast
+        toast.error('Failed to load instances');
       });
   }, []);
 
-  // Stop an instance by ID
-  const stopInstance = (id) => {
-    axios
-      .post(`http://localhost:8080/instances/stop?instanceId=${id}`) // Send id as query parameter in the URL
-      .then(() => {
-        setInstances(instances.filter((instance) => instance.id !== id)); // Remove the instance from the list
-        toast.success('Instance stopped successfully!');  // Success toast
-      })
-      .catch((error) => {
-        console.error('Error stopping instance:', error);
-        toast.error('Failed to stop the instance.');  // Error toast
-      });
+  const handleAction = () => {
+    const { action, instanceId } = modal;
+
+    if (action === 'stop') {
+      axios
+        .post(`http://localhost:8080/instances/stop?instanceId=${instanceId}`)
+        .then(() => {
+          setInstances(instances.filter((instance) => instance.id !== instanceId));
+          toast.success('Instance stopped successfully!');
+        })
+        .catch((error) => {
+          console.error('Error stopping instance:', error);
+          toast.error('Failed to stop the instance.');
+        });
+    } else if (action === 'start') {
+      axios
+        .post(`http://localhost:8080/instances/start?instanceId=${instanceId}`)
+        .then(() => {
+          setInstances(
+            instances.map((instance) =>
+              instance.id === instanceId ? { ...instance, state: 'running' } : instance
+            )
+          );
+          toast.success('Instance started successfully!');
+        })
+        .catch((error) => {
+          console.error('Error starting instance:', error);
+          toast.error('Failed to start the instance.');
+        });
+    }
+
+    setModal({ isOpen: false, action: null, instanceId: null });
   };
 
-  // Start an instance by ID
-  const startInstance = (id) => {
-    axios
-      .post(`http://localhost:8080/instances/start?instanceId=${id}`) // Send id as query parameter in the URL
-      .then(() => {
-        setInstances(instances.map((instance) => 
-          instance.id === id ? { ...instance, state: 'running' } : instance
-        ));
-        toast.success('Instance started successfully!');  // Success toast
-      })
-      .catch((error) => {
-        console.error('Error starting instance:', error);
-        toast.error('Failed to start the instance.');  // Error toast
-      });
+  const openModal = (action, id) => {
+    console.log("Opening modal")
+    setModal({ isOpen: true, action, instanceId: id });
   };
 
-
+  const closeModal = () => {
+    setModal({ isOpen: false, action: null, instanceId: null });
+  };
 
   if (loading) return <p>Loading instances...</p>;
 
   return (
     <div className={styles.container}>
       <h2 className={styles.header}>EC2 Instances</h2>
-      
-
-      {/* Table displaying instances */}
       <table className={styles.instanceTable}>
         <thead>
           <tr>
@@ -85,28 +94,33 @@ function InstanceList() {
               <td>{instance.public_ip}</td>
               <td>{instance.private_ip}</td>
               <td>
-                {/* Button to stop the instance */}
-                <button 
-                  onClick={() => stopInstance(instance.id)} 
+                <button
+                  onClick={() => openModal('stop', instance.id)}
                   className={styles.stopButton}
                   disabled={instance.state !== 'running'}
                 >
                   Stop Instance
                 </button>
-
-                {/* Button to start the instance */}
-                <button 
-                  onClick={() => startInstance(instance.id)} 
+                <button
+                  onClick={() => openModal('start', instance.id)}
                   className={styles.startButton}
                   disabled={instance.state !== 'stopped'}
                 >
                   Start Instance
                 </button>
+
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+
+      <ConfirmationModal
+        isOpen={modal.isOpen}
+        message={`Are you sure you want to ${modal.action} this instance?`}
+        onConfirm={handleAction}
+        onCancel={closeModal}
+      />
     </div>
   );
 }

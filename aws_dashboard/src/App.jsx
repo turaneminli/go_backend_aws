@@ -15,8 +15,8 @@ function App() {
       <div className="App">
         <Navbar />
         <Routes>
-          <Route path="/launch-instance" element={<LaunchInstance />} />
           <Route path="/" element={<InstanceList />} />
+          <Route path="/launch-instance" element={<LaunchInstance />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/s3/buckets" element={<ListBuckets />} />
         </Routes>
