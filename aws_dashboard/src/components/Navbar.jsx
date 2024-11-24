@@ -20,6 +20,9 @@ function Navbar() {
         <li className={location.pathname === '/dashboard' ? styles.active : ''}>
           <Link to="/dashboard">Dashboard</Link>
         </li>
+        <li className={location.pathname === '/s3/buckets' ? styles.active : ''}>
+          <Link to="/s3/buckets">List S3 Buckets</Link>
+        </li>
       </ul>
     </nav>
   );

@@ -11,11 +11,7 @@ type S3Handler struct {
 	Service *services.S3Service
 }
 
-type BucketResponse struct {
-	Message string `json:"message"`
-	Bucket  string `json:"bucket"`
-}
-
+// ListBucketsHandler handles the API request to get the list of buckets
 func (h *S3Handler) ListBucketsHandler(w http.ResponseWriter, r *http.Request) {
 	buckets, err := h.Service.ListBuckets()
 	if err != nil {
@@ -23,74 +19,35 @@ func (h *S3Handler) ListBucketsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Set the response header to indicate JSON content
 	w.Header().Set("Content-Type", "application/json")
+
+	// Encode the list of buckets to JSON and send the response
 	if err := json.NewEncoder(w).Encode(buckets); err != nil {
 		http.Error(w, "Failed to encode buckets to JSON", http.StatusInternalServerError)
 	}
 }
 
-func (h *S3Handler) CreateBucketHandler(w http.ResponseWriter, r *http.Request) {
-	var input services.CreateBucketInput
-	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		http.Error(w, "Invalid request payload", http.StatusBadRequest)
-		return
-	}
-
-	err := h.Service.CreateBucket(input)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	response := BucketResponse{
-		Message: "Bucket created successfully",
-		Bucket:  input.BucketName,
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(response)
-}
-
-func (h *S3Handler) DeleteBucketHandler(w http.ResponseWriter, r *http.Request) {
+// GetBucketRegionHandler handles the API request to get the region of a specific bucket
+func (h *S3Handler) GetBucketRegionHandler(w http.ResponseWriter, r *http.Request) {
+	// Extract bucket name from the URL path or query parameters
 	bucketName := r.URL.Query().Get("bucketName")
-
 	if bucketName == "" {
-		http.Error(w, "Missing bucket name", http.StatusBadRequest)
+		http.Error(w, "Bucket name is required", http.StatusBadRequest)
 		return
 	}
 
-	err := h.Service.DeleteBucket(bucketName)
+	region, err := h.Service.GetBucketRegion(bucketName)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	response := BucketResponse{
-		Message: "Bucket deleted successfully",
-		Bucket:  bucketName,
-	}
-
+	// Set the response header to indicate JSON content
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
-}
 
-func (h *S3Handler) ListBucketObjectsHandler(w http.ResponseWriter, r *http.Request) {
-	bucketName := r.URL.Query().Get("bucketName")
-
-	if bucketName == "" {
-		http.Error(w, "Missing bucket name", http.StatusBadRequest)
-		return
-	}
-
-	objects, err := h.Service.ListBucketObjects(bucketName)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(objects); err != nil {
-		http.Error(w, "Failed to encode objects to JSON", http.StatusInternalServerError)
+	// Encode the region to JSON and send the response
+	if err := json.NewEncoder(w).Encode(map[string]string{"region": region}); err != nil {
+		http.Error(w, "Failed to encode region to JSON", http.StatusInternalServerError)
 	}
 }

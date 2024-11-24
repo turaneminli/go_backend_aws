@@ -3,30 +3,41 @@ package services
 import (
 	"context"
 	"fmt"
+	"log"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 )
 
-// S3Service encapsulates S3 operations
-type S3Service struct {
-	Client *s3.Client
-}
-
+// BucketInfo holds the information about each bucket
 type BucketInfo struct {
 	Name         string `json:"name"`
+	Region       string `json:"region,omitempty"`
 	CreationDate string `json:"creation_date"`
 }
 
-type CreateBucketInput struct {
-	BucketName string `json:"bucket_name"`
-	Region     string `json:"region"`
+// S3Service is the service struct that holds the S3 client
+type S3Service struct {
+	Client *s3.Client
+	cache  map[string]string // Cache for bucket regions
 }
 
-// ListBuckets retrieves a list of all buckets
+// NewS3Service initializes the S3Service with a cache
+func NewS3Service(client *s3.Client) *S3Service {
+	return &S3Service{
+		Client: client,
+		cache:  make(map[string]string),
+	}
+}
+
+// ListBuckets retrieves a list of all buckets from S3 without fetching the regions by default
 func (s *S3Service) ListBuckets() ([]BucketInfo, error) {
-	output, err := s.Client.ListBuckets(context.TODO(), &s3.ListBucketsInput{})
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	output, err := s.Client.ListBuckets(ctx, &s3.ListBucketsInput{})
 	if err != nil {
 		return nil, fmt.Errorf("failed to list buckets: %w", err)
 	}
@@ -42,63 +53,45 @@ func (s *S3Service) ListBuckets() ([]BucketInfo, error) {
 	return buckets, nil
 }
 
-// CreateBucket creates a new S3 bucket in the specified region
-func (s *S3Service) CreateBucket(input CreateBucketInput) error {
-	_, err := s.Client.CreateBucket(context.TODO(), &s3.CreateBucketInput{
-		Bucket: aws.String(input.BucketName),
-		CreateBucketConfiguration: &types.CreateBucketConfiguration{
-			LocationConstraint: types.BucketLocationConstraint(input.Region),
-		},
-	})
-	if err != nil {
-		return fmt.Errorf("failed to create bucket: %w", err)
+// GetBucketRegion retrieves the region of the specified bucket
+func (s *S3Service) GetBucketRegion(bucketName string) (string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	// Check cache first
+	region, found := s.cache[bucketName]
+	if found {
+		log.Printf("Cache hit for bucket: %s", bucketName)
+		return region, nil
 	}
 
-	return nil
+	log.Printf("Cache miss for bucket: %s", bucketName)
+	for retries := 0; retries < 3; retries++ {
+		region, err := getBucketRegion(ctx, s.Client, bucketName)
+		if err == nil {
+			// Update cache
+			s.cache[bucketName] = region
+			return region, nil
+		}
+		log.Printf("Retrying to get region for bucket %s, attempt %d", bucketName, retries+1)
+		time.Sleep(time.Duration(retries) * time.Second)
+	}
+
+	return "", fmt.Errorf("failed to get region for bucket %s", bucketName)
 }
 
-// DeleteBucket deletes the specified S3 bucket
-func (s *S3Service) DeleteBucket(bucketName string) error {
-	_, err := s.Client.DeleteBucket(context.TODO(), &s3.DeleteBucketInput{
+// getBucketRegion retrieves the region of the specified bucket
+func getBucketRegion(ctx context.Context, svc *s3.Client, bucketName string) (string, error) {
+	resp, err := svc.GetBucketLocation(ctx, &s3.GetBucketLocationInput{
 		Bucket: aws.String(bucketName),
 	})
 	if err != nil {
-		return fmt.Errorf("failed to delete bucket: %w", err)
+		return "", err
 	}
 
-	return nil
-}
-
-// GetBucketDetails retrieves the details of a specific bucket, including its region
-func (s *S3Service) GetBucketDetails(bucketName string) (string, error) {
-	output, err := s.Client.GetBucketLocation(context.TODO(), &s3.GetBucketLocationInput{
-		Bucket: aws.String(bucketName),
-	})
-	if err != nil {
-		return "", fmt.Errorf("failed to get bucket location: %w", err)
+	if resp.LocationConstraint == types.BucketLocationConstraint("") {
+		return "us-east-1", nil
 	}
 
-	region := string(output.LocationConstraint)
-	if region == "" {
-		region = "us-east-1" // Default region if no location constraint is set
-	}
-
-	return region, nil
-}
-
-// ListBucketObjects lists objects in a specified bucket
-func (s *S3Service) ListBucketObjects(bucketName string) ([]string, error) {
-	output, err := s.Client.ListObjectsV2(context.TODO(), &s3.ListObjectsV2Input{
-		Bucket: aws.String(bucketName),
-	})
-	if err != nil {
-		return nil, fmt.Errorf("failed to list objects in bucket: %w", err)
-	}
-
-	var objectKeys []string
-	for _, object := range output.Contents {
-		objectKeys = append(objectKeys, aws.ToString(object.Key))
-	}
-
-	return objectKeys, nil
+	return string(resp.LocationConstraint), nil
 }

@@ -6,16 +6,19 @@ import 'react-toastify/dist/ReactToastify.css';  // Import Toastify styles
 import InstanceList from './components/InstanceList';
 import Navbar from './components/Navbar';
 import Dashboard from './components/Dashboard';
+import ListBuckets from './components/ListBuckets';
+
 
 function App() {
   return (
     <Router>
       <div className="App">
-      <Navbar/> 
+        <Navbar />
         <Routes>
           <Route path="/launch-instance" element={<LaunchInstance />} />
           <Route path="/" element={<InstanceList />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/s3/buckets" element={<ListBuckets />} />
         </Routes>
         <ToastContainer />
       </div>

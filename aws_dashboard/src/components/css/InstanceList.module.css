@@ -50,3 +50,52 @@ button:disabled {
   background-color: gray;
   cursor: not-allowed;
 }
+
+.sortButton {
+  background-color: #007bff; /* Bootstrap primary blue */
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 12px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.sortButton:hover {
+  background-color: #0056b3; /* Darker shade of blue */
+  transform: scale(1.05); /* Slightly larger when hovered */
+}
+
+.loading {
+  font-size: 18px;
+  color: #007bff; /* Bootstrap primary blue */
+  text-align: center;
+  margin: 20px 0;
+  position: relative;
+}
+
+@keyframes spinner {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading::before {
+  content: "";
+  box-sizing: border-box;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 50px;
+  height: 50px;
+  margin-top: -25px;
+  margin-left: -25px;
+  border-radius: 50%;
+  border: 3px solid #ccc;
+  border-top-color: #007bff;
+  animation: spinner 0.6s linear infinite;
+}

@@ -37,9 +37,6 @@ func NewRouter(ec2Handler *handlers.EC2Handler, cloudWatchHandler *handlers.Clou
 
 	// S3 Routes
 	r.Get("/s3/buckets", s3Handler.ListBucketsHandler)
-	r.Post("/s3/buckets/create", s3Handler.CreateBucketHandler)
-	r.Delete("/s3/buckets/delete", s3Handler.DeleteBucketHandler)
-	r.Get("/s3/buckets/objects", s3Handler.ListBucketObjectsHandler)
 
 	return r
 }
