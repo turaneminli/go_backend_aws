@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -32,6 +33,19 @@ type InstanceStatus struct {
 	State     string `json:"state"`
 	PublicIP  string `json:"public_ip"`
 	PrivateIP string `json:"private_ip"`
+}
+
+type InstanceDetail struct {
+	ID             string   `json:"id"`
+	Name           string   `json:"name"`
+	State          string   `json:"state"`
+	PrivateIP      string   `json:"privateIp"`
+	PublicIP       string   `json:"publicIp"`
+	InstanceType   string   `json:"instanceType"`
+	LaunchTime     string   `json:"launchTime"`
+	Tags           []string `json:"tags"`
+	SecurityGroups []string `json:"securityGroups"`
+	Volumes        []string `json:"volumes"`
 }
 
 func (s *EC2Service) ListRegions() ([]types.Region, error) {
@@ -139,6 +153,35 @@ func (s *EC2Service) StartInstanceById(instanceID string) (string, error) {
 	return "", fmt.Errorf("instance not found or failed to start")
 }
 
+func (s *EC2Service) RebootInstanceById(instanceID string) (string, error) {
+	input := &ec2.RebootInstancesInput{
+		InstanceIds: []string{instanceID},
+	}
+
+	_, err := s.Client.RebootInstances(context.TODO(), input)
+	if err != nil {
+		return "", fmt.Errorf("unable to reboot instance: %w", err)
+	}
+
+	return instanceID, nil
+}
+
+func (s *EC2Service) TerminateInstanceById(instanceID string) (string, error) {
+	// Create input for terminating the instance
+	input := &ec2.TerminateInstancesInput{
+		InstanceIds: []string{instanceID},
+	}
+
+	// Call TerminateInstances method
+	_, err := s.Client.TerminateInstances(context.TODO(), input)
+	if err != nil {
+		return "", fmt.Errorf("unable to terminate instance: %w", err)
+	}
+
+	// Return the instance ID if successful
+	return instanceID, nil
+}
+
 func (s *EC2Service) GetAllRunningInstancesStatus() ([]InstanceStatus, error) {
 	input := &ec2.DescribeInstancesInput{}
 
@@ -173,4 +216,60 @@ func (s *EC2Service) GetAllRunningInstancesStatus() ([]InstanceStatus, error) {
 	}
 
 	return runningInstances, nil
+}
+
+func (s *EC2Service) GetInstanceDetails(instanceId string) (*InstanceDetail, error) {
+	// Create the request to describe the instance
+	input := &ec2.DescribeInstancesInput{
+		InstanceIds: []string{instanceId},
+	}
+
+	output, err := s.Client.DescribeInstances(context.TODO(), input)
+	if err != nil {
+		return nil, fmt.Errorf("failed to describe instance: %v", err)
+	}
+
+	// Check if the instance is found
+	if len(output.Reservations) == 0 || len(output.Reservations[0].Instances) == 0 {
+		return nil, fmt.Errorf("instance with ID %s not found", instanceId)
+	}
+
+	instance := output.Reservations[0].Instances[0]
+	instanceDetail := &InstanceDetail{
+		ID:           aws.ToString(instance.InstanceId),
+		State:        string(instance.State.Name),
+		PrivateIP:    aws.ToString(instance.PrivateIpAddress),
+		PublicIP:     aws.ToString(instance.PublicIpAddress),
+		InstanceType: string(instance.InstanceType),
+	}
+
+	// Convert LaunchTime (*time.Time) to string
+	if instance.LaunchTime != nil {
+		instanceDetail.LaunchTime = instance.LaunchTime.Format(time.RFC3339) // or any other format
+	}
+
+	// Get the name tag of the instance (if available)
+	for _, tag := range instance.Tags {
+		if *tag.Key == "Name" {
+			instanceDetail.Name = *tag.Value
+			break
+		}
+	}
+
+	// Fetch security groups associated with the instance
+	for _, sg := range instance.SecurityGroups {
+		instanceDetail.SecurityGroups = append(instanceDetail.SecurityGroups, *sg.GroupName)
+	}
+
+	// Fetch attached volumes (if any)
+	for _, blockDevice := range instance.BlockDeviceMappings {
+		instanceDetail.Volumes = append(instanceDetail.Volumes, *blockDevice.Ebs.VolumeId)
+	}
+
+	// Fetch instance tags
+	for _, tag := range instance.Tags {
+		instanceDetail.Tags = append(instanceDetail.Tags, fmt.Sprintf("%s: %s", *tag.Key, *tag.Value))
+	}
+
+	return instanceDetail, nil
 }

@@ -29,7 +29,11 @@ func NewRouter(ec2Handler *handlers.EC2Handler, cloudWatchHandler *handlers.Clou
 	r.Post("/instances/launch", ec2Handler.LaunchInstanceHandler)
 	r.Post("/instances/stop", ec2Handler.StopInstanceByIdHandler)
 	r.Post("/instances/start", ec2Handler.StartInstanceByIdHandler)
+	r.Post("/instances/reboot", ec2Handler.RebootInstanceByIdHandler)
+	r.Post("/instances/terminate", ec2Handler.TerminateInstanceByIdHandler)
 	r.Get("/instances/status", ec2Handler.ListRunningInstancesStatusHandler)
+	r.Get("/instances/detail", ec2Handler.InstanceDetailHandler)
+
 	r.Get("/security-groups", ec2Handler.ListSecurityGroupsHandler)
 
 	// CloudWatch Routes

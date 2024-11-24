@@ -134,3 +134,77 @@ func (h *EC2Handler) ListSecurityGroupsHandler(w http.ResponseWriter, r *http.Re
 		http.Error(w, fmt.Sprintf("Failed to encode response: %v", err), http.StatusInternalServerError)
 	}
 }
+
+func (h *EC2Handler) InstanceDetailHandler(w http.ResponseWriter, r *http.Request) {
+	// Extract instanceId from query parameters
+	instanceId := r.URL.Query().Get("instanceId")
+
+	if instanceId == "" {
+		http.Error(w, "Instance ID is required", http.StatusBadRequest)
+		return
+	}
+
+	// Fetch the detailed instance info
+	instanceDetails, err := h.Service.GetInstanceDetails(instanceId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Respond with the detailed instance information
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(instanceDetails); err != nil {
+		http.Error(w, "Failed to encode instance details to JSON", http.StatusInternalServerError)
+	}
+}
+
+func (h *EC2Handler) TerminateInstanceByIdHandler(w http.ResponseWriter, r *http.Request) {
+	instanceID := r.URL.Query().Get("instanceId")
+
+	if instanceID == "" {
+		http.Error(w, "Missing instance ID", http.StatusBadRequest)
+		return
+	}
+
+	// Call the service method to terminate the instance
+	instanceID, err := h.Service.TerminateInstanceById(instanceID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	response := Response{
+		Message:    "Instance terminated successfully",
+		InstanceID: instanceID,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(response)
+}
+
+func (h *EC2Handler) RebootInstanceByIdHandler(w http.ResponseWriter, r *http.Request) {
+	instanceID := r.URL.Query().Get("instanceId")
+
+	if instanceID == "" {
+		http.Error(w, "Missing instance ID", http.StatusBadRequest)
+		return
+	}
+
+	// Call the service method to reboot the instance
+	instanceID, err := h.Service.RebootInstanceById(instanceID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	response := Response{
+		Message:    "Instance rebooted successfully",
+		InstanceID: instanceID,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(response)
+}
