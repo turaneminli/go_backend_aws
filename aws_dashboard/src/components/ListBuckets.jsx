@@ -3,6 +3,8 @@ import axios from 'axios';
 import { toast } from 'react-toastify'; // Import toast from react-toastify
 import 'react-toastify/dist/ReactToastify.css'; // Import Toastify styles
 import styles from './css/InstanceList.module.css';
+// Font Awesome for icons
+import { FaSortUp, FaSortDown } from 'react-icons/fa'; 
 
 const ListBuckets = () => {
   const [buckets, setBuckets] = useState([]);
@@ -18,7 +20,7 @@ const ListBuckets = () => {
       .then(response => {
         setBuckets(response.data);
         setError('');
-        toast.success('Buckets fetched successfully!'); // Show success toast
+        // toast.success('Buckets fetched successfully!'); // Show success toast
       })
       .catch(err => {
         setError('Error fetching buckets');
@@ -87,7 +89,7 @@ const ListBuckets = () => {
                   className={styles.sortButton}
                   onClick={() => sortBucketsByField('name')}
                 >
-                  {sortOrder.name === 'asc' ? 'Sort Desc' : 'Sort Asc'}
+                  {sortOrder.name === 'asc' ? <FaSortUp /> : <FaSortDown />}
                 </button>
               </th>
               <th>
@@ -96,7 +98,7 @@ const ListBuckets = () => {
                   className={styles.sortButton}
                   onClick={() => sortBucketsByField('region')}
                 >
-                  {sortOrder.region === 'asc' ? 'Sort Desc' : 'Sort Asc'}
+                  {sortOrder.region === 'asc' ? <FaSortUp /> : <FaSortDown />}
                 </button>
               </th>
               <th>
@@ -105,7 +107,7 @@ const ListBuckets = () => {
                   className={styles.sortButton}
                   onClick={() => sortBucketsByField('creation_date')}
                 >
-                  {sortOrder.date === 'asc' ? 'Sort Desc' : 'Sort Asc'}
+                  {sortOrder.date === 'asc' ? <FaSortUp /> : <FaSortDown />}
                 </button>
               </th>
             </tr>
