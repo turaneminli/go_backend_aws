@@ -1,4 +1,4 @@
-````markdown
+
 # Cloud Resource Dashboard
 
 A lightweight web application for launching, stopping and monitoring AWS EC2
