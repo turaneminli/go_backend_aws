@@ -1,6 +1,4 @@
-
-
-```markdown
+````markdown
 # Cloud Resource Dashboard
 
 A lightweight web application for launching, stopping and monitoring AWS EC2
@@ -20,11 +18,12 @@ single-page app.
 - **Modern UI** – React, Tailwind CSS, Chart.js and React-Toastify for
   notifications.  
 
+
 ---
 
 ## Folder Layout
 
-```
+```text
 .
 ├── cmd/                  # main server entry-point
 ├── internal/
@@ -33,9 +32,9 @@ single-page app.
 │   ├── router/           # Chi router + CORS setup
 │   └── utils/            # client factories (EC2, S3, CloudWatch)
 ├── aws_dashboard/        # React front-end (Vite)
-├── go.mod / go.sum       # dependencies ([raw.githubusercontent.com](https://raw.githubusercontent.com/turaneminli/go_backend_aws/master/go.mod))
-└── .gitignore            # excludes .env files ([raw.githubusercontent.com](https://raw.githubusercontent.com/turaneminli/go_backend_aws/master/.gitignore))
-```
+├── go.mod / go.sum       # dependencies
+└── .gitignore            # excludes .env files
+````
 
 ---
 
@@ -52,10 +51,9 @@ go run ./cmd
 
 The server boots on **`localhost:8080`** by default.
 
-> **Credentials**  
+> **Credentials**
 > Export your AWS profile, or set the standard environment variables
-> (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`).  
-
+> (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`).
 
 ### 2. Frontend
 
@@ -71,32 +69,30 @@ Change `VITE_API_BASE_URL` in `aws_dashboard/.env` if the backend host differs.
 
 ## API Reference
 
-| Method | Path | Description |
-|--------|------|-------------|
-| `GET`  | `/regions` | List all AWS regions |
-| `POST` | `/instances/launch` | Launch a new EC2 instance |
-| `POST` | `/instances/stop`   | Stop instance by ID |
-| `POST` | `/instances/start`  | Start instance by ID |
-| `POST` | `/instances/reboot` | Reboot instance by ID |
-| `POST` | `/instances/terminate` | Terminate instance by ID |
-| `GET`  | `/instances/status` | Summary of running & stopped instances |
-| `GET`  | `/instances/detail` | Full detail for a single instance |
-| `GET`  | `/security-groups`  | List security groups in region |
-| `GET`  | `/cloudwatch/metrics` | CPU, Network In/Out (last hour) |
-| `GET`  | `/s3/buckets` | List buckets with region & created date |
-
-See [`internal/router/router.go`] for precise handler mapping ([raw.githubusercontent.com](https://raw.githubusercontent.com/turaneminli/go_backend_aws/master/internal/router/router.go)).
+| Method | Path                   | Description                             |
+| ------ | ---------------------- | --------------------------------------- |
+| `GET`  | `/regions`             | List all AWS regions                    |
+| `POST` | `/instances/launch`    | Launch a new EC2 instance               |
+| `POST` | `/instances/stop`      | Stop instance by ID                     |
+| `POST` | `/instances/start`     | Start instance by ID                    |
+| `POST` | `/instances/reboot`    | Reboot instance by ID                   |
+| `POST` | `/instances/terminate` | Terminate instance by ID                |
+| `GET`  | `/instances/status`    | Summary of running & stopped instances  |
+| `GET`  | `/instances/detail`    | Full detail for a single instance       |
+| `GET`  | `/security-groups`     | List security groups in region          |
+| `GET`  | `/cloudwatch/metrics`  | CPU, Network In/Out (last hour)         |
+| `GET`  | `/s3/buckets`          | List buckets with region & created date |
 
 ---
 
 ## Architecture
 
 ```mermaid
-graph TD
-  subgraph Front-end (Vite)
+graph TD;
+  subgraph "Front-end (Vite)"
     R1[React SPA]
   end
-  subgraph Back-end (Go)
+  subgraph "Back-end (Go)"
     H[Chi Router]
     S1[EC2 Service]
     S2[S3 Service]
@@ -112,13 +108,11 @@ graph TD
 ---
 
 ## Roadmap
-- IAM role switch / STS integration  
-- WebSocket stream for near-real-time metrics  
-- Terraform or CDK deployment templates
+
+* IAM role switch / STS integration
+* WebSocket stream for near-real-time metrics
+* Terraform or CDK deployment templates
 
 ---
 
-## Contributing
-PRs are welcome. Please open an issue first to discuss major changes.
 
----
